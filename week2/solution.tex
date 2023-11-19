@@ -1,0 +1,267 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[table]{xcolor}  % For coloring rows
+\usepackage{ tipa }
+\usepackage{ dsfont }
+
+\let\epsilon\varepsilon
+
+\newcommand{\N}{\mathbb{N}}
+
+\title{
+Machine Learning \\
+[0.2em]Exercise Sheet 2 Solution
+}
+\author{
+  Alper Hamza Ari\\
+  \texttt{5771973}
+  \and
+  Chenqi Hao\\
+  \texttt{5781375}
+  \and
+  Danil Skokov\\
+  \texttt{5779466}
+  \and
+  Said Orfan Haidari\\
+  \texttt{5781295}
+}
+\date{\today}
+
+\begin{document}
+\raggedright
+\maketitle
+
+\section{Linear Regression}
+Please see \texttt{question1.ipynb} program for the solution to the given problem. 
+
+\section{Logistic Regression}
+
+\subsection{Deriving update rule for gradient descent }
+Given the objective loss function (negative loglikelihood or binary cross entropy loss):
+
+\begin{equation}
+    J = -\sum^{N}_{i=1}{y_n}{\log(p_i)}+(1-y_i)log(1-p_i)
+\end{equation}
+
+And predicted value of $ith$ observation:
+\begin{equation}
+    p_i = h_w(x_i) = P(y=1|X=x_i;w) = \sigma(x_i)
+\end{equation}
+
+We want to derive update rule of gradient descent optimization for logistic regression, which aims to find the optimal weights to minimize objective loss.\\
+Given update rule and its parameters:
+\begin{equation}
+    \begin{gathered}
+        w^{(t+1)} = w^{(t)}-\eta\frac{\partial J(D,w)}{\partial w}\\
+        \text{where } t \in \mathds{N}^+\\
+         \text{and given dataset } D= \{ (x_i, y_i) \} ^{N}_{i=1}
+    \end{gathered}
+\end{equation}
+
+For simplicity, i will remove $i$ from all equations and i will perform all the operations in matrix form.
+
+Re-expressing what we had:
+\begin{equation} \label{chain}
+    \begin{gathered}
+        J = -y log(p) - (1-y) log(1-p)\\
+        p = \sigma(z) = \frac{1}{1+e^{-z}}\\
+        z = w^{\intercal} x + b
+    \end{gathered}
+\end{equation}
+
+By chain rule:
+\begin{equation}
+    \begin{split}
+        \frac{\partial J}{\partial w} &= \frac{\partial J}{\partial p} \cdot \frac{\partial p}{\partial w}\\
+        &=  \frac{\partial J}{\partial p} \cdot \frac{\partial p}{\partial z} \cdot \frac{\partial z}{\partial w} 
+    \end{split}
+\end{equation}
+
+And by calculating each partial derivative:
+
+\begin{equation}
+    \begin{split}
+        \frac{\partial J}{\partial p} &= \frac{-y}{p} + \frac{1-y}{1-p}\\
+        \frac{\partial p}{\partial z} &= \frac{e^{-z}}{(1+e^{-1})^2}\\
+        \frac{\partial z}{\partial w} &= x
+    \end{split}
+\end{equation}
+
+By putting pieces together:
+\begin{equation}
+    \frac{\partial J}{\partial w} = \left( \frac{-y}{p} + \frac{1-y}{1-p} \right) \left(\frac{-e^{-z}}{(1+e^{-z})^2}\right) \cdot \left(x\right)
+\end{equation}
+
+And recall that:
+\begin{equation}
+    \begin{split}
+        p &= \frac{1}{1+e^{-z}} \\
+        e^{-z} &= \frac{1-p}{p}
+    \end{split}
+\end{equation}
+
+Then our final partial derivative can be expressed again as follows:
+\begin{equation}
+    \begin{split}
+        \frac{\partial J}{\partial w} &= \left( \frac{-y}{p} + \frac{1-y}{1-p} \right) \cdot \left( \frac{(1-p)p^2}{p} \right) \cdot \left( x \right) \\
+        &= (p-y)x
+    \end{split}
+\end{equation}
+Which can also be expressed in different ways as follows:
+\begin{equation}
+    \begin{split}
+        \frac{\partial J}{\partial w} &= \sum^N_i -(y_i - h_w(x_i)) \cdot x_i \\
+        &= -X^{\intercal}(y-p)
+    \end{split}
+\end{equation}
+
+\subsection{One step of gradient descent algorithm}
+We will append bias term to the end of weight array and define a new parameter array:
+\begin{equation}
+    w = 
+    \begin{bmatrix}
+        w_1 & w_2 & b
+    \end{bmatrix}
+\end{equation}
+
+which was initially given as: 
+
+\begin{equation}
+    w = 
+    \begin{bmatrix}
+        0 & 0 & 0
+    \end{bmatrix}
+\end{equation}
+
+Then we will find predicted values for each observation $x_n$:
+\begin{equation}
+    \begin{gathered}
+        \text{Predicted value: } p = \sigma (w^\intercal x)\\
+        p_1 (\text {or $\hat{y_1}$}) = \sigma ((w^\intercal x_1)) = \sigma (0) = 0.5 \\
+        p_2 (\text {or $\hat{y_2}$}) = \sigma ((w^\intercal x_2)) = \sigma (0) = 0.5 \\
+        p_3 (\text {or $\hat{y_3}$}) = \sigma ((w^\intercal x_3)) = \sigma (0) = 0.5 \\
+        p_4 (\text {or $\hat{y_4}$}) = \sigma ((w^\intercal x_4)) = \sigma (0) = 0.5\\
+        \allowbreak
+        \text{which gives us the $\hat{y}$ array}\\
+        \hat{y} = 
+                \begin{bmatrix}
+                    0.5 & 0.5 & 0.5 & 0.5
+                \end{bmatrix}
+    \end{gathered}
+\end{equation}
+
+Then we will find gradient vector:
+\begin{equation}
+     \begin{gathered}
+            \frac{\partial J}{\partial w} = 
+            \begin{bmatrix}
+                \frac{\partial J}{\partial w_1} \\[6pt]
+                \frac{\partial J}{\partial w_2} \\[6pt]
+                \frac{\partial J}{\partial b} 
+            \end{bmatrix}
+            =
+            \begin{bmatrix}
+                (\hat{y}-y)x_1  \\[6pt]
+                (\hat{y}-y)x_2 \\[6pt]
+                0
+            \end{bmatrix}
+            \\
+            \text{where $x_n$ represents array of observations for $nth$ feature} \\
+            x_1 =   \begin{bmatrix}
+                    2 \\  3  \\ -4  \\ -2            
+                    \end{bmatrix}
+            \\
+            x_2 =   \begin{bmatrix}
+                    4  \\  3  \\ -2  \\ -6            
+                    \end{bmatrix}
+            \\
+            \text{y represents array of results}\\
+            \text{and $\hat{y}$ represents array of predicted values}\\
+            y =     \begin{bmatrix}
+                     1 &  1 & 0 & 0            
+                    \end{bmatrix}
+            \\
+            \hat{y} =   \begin{bmatrix}
+                        0.5 &  0.5 & 0.5 & 0.5            
+                        \end{bmatrix}
+            \\
+            \text{Then calculating gradient vector}\\
+            \frac{\partial J}{\partial w_1} = 
+                \begin{bmatrix}
+                -0.5  &  -0.5  & 0.5  & 0.5            
+                \end{bmatrix} \cdot
+                \begin{bmatrix}
+                2 \\  3  \\ -4  \\ -2            
+                \end{bmatrix}
+                =
+                -5.5
+            \\
+            \frac{\partial J}{\partial w_2} = 
+                \begin{bmatrix}
+                -0.5  &  -0.5  & 0.5  & 0.5            
+                \end{bmatrix} \cdot
+                \begin{bmatrix}
+                4  \\  3  \\ -2  \\ -6            
+                \end{bmatrix}
+                =
+                -7.5
+            \\
+            \frac{\partial J}{\partial w} = 
+            \begin{bmatrix}
+                \frac{\partial J}{\partial w_1} \\[6pt]
+                \frac{\partial J}{\partial w_2} \\[6pt]
+                \frac{\partial J}{\partial b} 
+            \end{bmatrix}
+            =
+            \begin{bmatrix}
+            -5.5 \\[6pt]  -7.5  \\[6pt] 0         
+            \end{bmatrix}
+     \end{gathered}
+\end{equation}
+
+Also notice that $\frac{\partial J}{\partial b} = 0$  since we neglect bias in the formula $z = w^{\intercal} x + b$ which leaves us with $z = w^{\intercal} x$. Please check equation \ref{chain} above.\\
+
+Calculating new weights after 1 step:
+\begin{equation}
+    \begin{split}
+        w^{(1)} = 
+        \begin{bmatrix}
+        0 \\  0  \\ 0         
+        \end{bmatrix}
+        - (0.5) 
+        \begin{bmatrix}
+        -5.5 \\  -7.5  \\ 0         
+        \end{bmatrix}
+        = 
+        \begin{bmatrix}
+        2.75 \\  3.75  \\ 0         
+        \end{bmatrix}
+    \end{split}
+\end{equation}
+
+Predicting $P(y=1 | X = [-1, 1])$:
+\begin{equation}
+    \begin{split}
+        \sigma(w^{\intercal}x+b) &= \sigma(w_1x_1 + w_2x_2 + b)\\
+        &= \sigma(-2.75 + 3.75 + 0) \\
+        &= \sigma(1)\\
+        &= \frac{1}{1+e^{-1}}\\
+        &= 0.731
+    \end{split}
+\end{equation}
+
+\end{document}

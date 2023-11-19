@@ -1,0 +1,115 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[table]{xcolor}  % For coloring rows
+\usepackage{ tipa }
+\usepackage{ dsfont }
+\usepackage{float}
+
+
+\let\epsilon\varepsilon
+
+\newcommand{\N}{\mathbb{N}}
+
+\title{
+Machine Learning \\
+[0.2em]Exercise Sheet 4 Solution
+}
+\author{
+  Alper Hamza Ari\\
+  \texttt{5771973}
+  \and
+  Chenqi Hao\\
+  \texttt{5781375}
+  \and
+  Danil Skokov\\
+  \texttt{5779466}
+  \and
+  Said Orfan Haidari\\
+  \texttt{5781295}
+}
+\date{\today}
+
+\begin{document}
+\raggedright
+\maketitle
+
+\section{Support Vector Machines}
+\subsection{Explain the “kernel trick” and why we use it in SVMs.}
+Kernek trick is a method that allows us to compute dot product of two vectors in a higher dimension without actually transforming them into that higher dimension. It reduces computation. We use kernel trick when data is not linearly seperable, not because of outlier data nor noise, but because of the data itself.
+
+\subsection {What is the difference between hard- and soft-margin SVM?}
+\texttt{Hard-margin SVM:} It doesn't tolerate noise and outliers. So it has narrower margin. It is strict on linearizability constraints.\\
+\texttt{Soft-margin SVM:} It can tolerate some noise and outlier data by expanding the margin. It relaxes linear separability.  
+
+\subsection{SVM Problem as average hinge loss and regularization}
+\subsubsection{Compute the gradient of the training objective w.r.t. w and describe
+the pseudocode for the gradient descent algorithm.}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=5in]{images/1.3a.png}
+        \caption{Computation of gradient}
+        \label{fig:1.3a}
+    \end{figure}
+
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=2in]{images/pseudocode.png}
+        \caption{Pseudocode for gradient descent algorithm}
+        \label{fig:1.3apseudo}
+    \end{figure}    
+
+    
+\subsubsection{Use gradient descent to update the weights}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=5in]{images/1.3b.png}
+        \caption{New weights}
+        \label{fig:1.3b}
+    \end{figure}
+
+
+\section{Linear Separability}
+
+\subsection{Deriving update rule for gradient descent }
+
+\subsubsection{Sketch the given dataset}
+    
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=3in]{images/2.1.png}
+        \caption{Sketch of 1D dataset}
+        \label{fig:2.1}
+    \end{figure}
+
+\subsubsection{Find a separating hyperplane, find its parameters and plot it}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=6in]{images/2.2.png}
+        \caption{Finding a hyperplane and sketch of the dataset in a new space}
+        \label{fig:2.2}
+    \end{figure}
+
+\subsubsection{Use the computed hyperplane to compute output for $x=\frac{1+\sqrt{5}}{2}$}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=5in]{images/2.3.png}
+        \caption{Output for $x=\frac{1+\sqrt{5}}{2}$}
+        \label{fig:2.3}
+    \end{figure}
+
+\end{document}

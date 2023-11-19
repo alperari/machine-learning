@@ -1,0 +1,286 @@
+\documentclass{article}
+
+% Language setting
+% Replace `english' with e.g. `spanish' to change the document language
+\usepackage[english]{babel}
+
+% Set page size and margins
+% Replace `letterpaper' with `a4paper' for UK/EU standard size
+\usepackage[letterpaper,top=2cm,bottom=2cm,left=3cm,right=3cm,marginparwidth=1.75cm]{geometry}
+
+% Useful packages
+\usepackage{enumerate}
+\usepackage[shortlabels]{enumitem}
+\usepackage{amsmath, amsfonts, amssymb}
+\usepackage{graphicx}
+\usepackage[colorlinks=true, allcolors=blue]{hyperref}
+\usepackage[table]{xcolor}  % For coloring rows
+\usepackage{ tipa }
+\usepackage{ dsfont }
+\usepackage{float}
+
+\usepackage[edges]{forest}
+
+\let\epsilon\varepsilon
+
+\newcommand{\N}{\mathbb{N}}
+
+\title{
+Machine Learning \\
+[0.2em]Exercise Sheet 5 Solution
+}
+\author{
+  Alper Hamza Ari\\
+  \texttt{5771973}
+  \and
+  Chenqi Hao\\
+  \texttt{5781375}
+  \and
+  Danil Skokov\\
+  \texttt{5779466}
+  \and
+  Said Orfan Haidari\\
+  \texttt{5781295}
+}
+\date{\today}
+
+\begin{document}
+\raggedright
+\maketitle
+
+\section{Classification and Regression Trees (CART): Theory}
+\begin{enumerate}
+    \item{What are the general advantages and disadvantages of decision trees? Can you elaborate on the disadvantages and provide a short description?}\\
+    \begin{itemize}
+        \item \texttt{Advantages:} It is interpretable. It can be used to solve both regression and classification problems.\\
+        
+        \item \texttt{Disadvantages:} The model can overfit to the given data easily. This is because it is a high-variance model. It is very unstable against noise or small changes in data, meaning that when you make small changes in the data, you might end up with very different tree.
+    \end{itemize}
+    
+    \item{Can you mention a few of the most important hyperparameters of the decision trees?} \\
+    \begin{itemize}
+        \item \texttt{max\textunderscore depth:} It states how much we want the tree to grow. The deeper a tree grows, the more it gets complex. \\
+
+        \item \texttt{min\textunderscore leaf:} It means minimum number of points that should be in a leaf node. In other words, a decision node can be split into two if both children nodes have at least \texttt{min\textunderscore leaf} many points. \\
+        
+        \item \texttt{split\textunderscore criterion:} It describes how to measure quality of the splits, e.g. \textit{entropy} method  will measure split quality by analyzing \textit{information gain} \\
+    \end{itemize}
+
+    \item{How can you make a decision tree overfit? Give three possibilities and explain.}
+    \begin{enumerate}[i]
+        \item The model overfits if \texttt{max\textunderscore depth} is very high. In other words, tree nodes will keep splitting until very high depths, or until each leaf becomes complete pure. \\
+        \item If \texttt{min\textunderscore leaf} is low, then nodes will keep splitting too much. \\
+        \item If the training data is small, then it is highly that predictions will fail. 
+    \end{enumerate}
+\end{enumerate}
+
+\newpage
+
+
+\section{Classification and Regression Trees (CART): Hands-On}
+
+\begin{enumerate}
+    \item The initial split that gives maximum \textit{information gain}: (left arrow = True)\\
+    \begin{equation*}
+         \begin{forest}
+        for tree={
+            grow=south,
+            rectangle, draw, minimum size=3ex, inner sep=8pt,
+            s sep=3cm
+                }
+        [\text{Ball Width $<$ 10}
+            [\textit{tennis tennis}]
+            [\textit{football football basketball}]
+        ]
+        \end{forest}
+    \end{equation*}
+    \\
+    Or another way: \\
+    \begin{equation*}
+        \begin{forest}
+            for tree={
+                grow=south,
+                rectangle, draw, minimum size=3ex, inner sep=8pt,
+                s sep=3cm
+                    }
+            [\text{Ball Color $=$ Yellow}
+                [\textit{tennis tennis}]
+                [\textit{football football basketball}]
+            ]
+        \end{forest}
+    \end{equation*}
+    \\
+    Both splits above will result it highest information gain which is calculated as follows:\\
+    \begin{align}
+        H(V) &= -(\frac{2}{5}log_2 (\frac{2}{5}) + \frac{2}{5}log_2 (\frac{2}{5}) + \frac{1}{5}log_2 (\frac{1}{5})) = 1.52 \\
+        P(V_{\text{left}}) &= \{1, 0, 0\} \\
+        H(V_{\text{left}}) &= -(1 \cdot log_2(1) + 0 \cdot log_2(0) + 0 \cdot log_2(0)) = 0 \\
+        P(V_{\text{right}}) &= \{0, \frac{2}{3}\}, \frac{1}{3} \\
+        H(V_{\text{right}}) &= -(0 \cdot log_2(0) + \frac{2}{3} \cdot log_2(\frac{2}{3}) + \frac{1}{3} \cdot log_2(\frac{1}{3})) = 0.92 \\
+        \text{gain} &= 5(1.52) - 2(0) - 3(0.92) = 4.84
+    \end{align}
+    \\
+    And an optimal and complete decision tree is: (left arrow = True)\\
+    \begin{equation*}
+        \begin{forest}
+            for tree={
+                grow=south,
+                rectangle, draw, minimum size=3ex, inner sep=8pt,
+                s sep=3cm
+                    }
+            [\text{Ball Width $<$ 10}
+                [\textit{tennis tennis}]
+                [
+                    \text{Ball Color $=$ White}
+                    [\textit{football football}]
+                    [\textit{basketball}]
+                ]
+            ]
+        \end{forest}
+    \end{equation*}
+    \\
+
+    \item{The decision tree corresponding to the sketch could be the following: (left arrow = True)}\\
+     \begin{equation*}
+        \begin{forest}
+            for tree={
+                grow=south,
+                rectangle, draw, minimum size=3ex, inner sep=8pt,
+                s sep=3cm
+                    }
+            [$x_1 < 0.5$
+                [$x_2 < 0.5$
+                    [0]
+                    [1]
+                ]
+                [$x_2 < 0.5$
+                    [1]
+                    [0]
+                ]
+            ]
+        \end{forest}
+    \end{equation*}
+    \\
+    And to measure the quality of predictions from the decision tree we can calculate intersected areas of prediction model and ground truth. The ratio between intersection and total area will give us the accuracy. \\
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=2in]{images/2.2 sketch.png}
+        \caption{Intersection of ground truth and the model, denoted in yellow}
+        \label{fig:2.2}
+    \end{figure}
+    The ratio gives us accuracy of $0.5$.\\
+
+    \item{Considering ground truth from the previous question, we want to find the best split candidate over $x_1$ axis.}\\
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=2in]{images/2.3 sketch.png}
+        \caption{Area to consider and maximize in terms of $x_1$}
+        \label{fig:2.3}
+    \end{figure}
+    
+    Which has the corresponding 1-depth decision tree: (left arrow = True)\\
+     \begin{equation*}
+        \begin{forest}
+            for tree={
+                grow=south,
+                rectangle, draw, minimum size=3ex, inner sep=8pt,
+                s sep=3cm
+                    }
+            [$x_1 < x$
+                [1]
+                [0]
+            ]
+        \end{forest}
+    \end{equation*}
+
+    We need to compute following areas:\\
+    \begin{equation}
+        \begin{split}
+            R_1 &= \frac{1}{2} - \frac{(1-x)^2}{2} \\
+            R_2 &= (1-x) - \frac{(1-x)^2}{2}
+        \end{split}
+    \end{equation}
+    And our objective is:
+    \begin{equation}
+        \begin{split}
+            \operatorname*{argmin}_x (R_1 + R_2) &= \operatorname*{argmin}_x \left((1-x) + \frac{1}{2} - 2 \cdot \frac{(1-x)^2}{2}\right)\\
+            &= \operatorname*{argmin}_x (-x^2 + x + \frac{1}{2})\\
+        \end{split}
+    \end{equation}
+    Taking derivative with respect to $x$ and setting to 0:\\
+    \begin{equation}
+        \begin{split}
+            \frac{d(R_1 + R_2)}{dx} &= -2x+1 = 0\\
+            x_1 &= \frac{1}{2} \text{ will maximize the yellow area}
+        \end{split}
+    \end{equation}
+
+    \item{A second split on $x_2$ axis and taking intersections with ground truth:}
+    \begin{figure}[H]
+        \centering
+        \includegraphics[width=2in]{images/2.4 sketch.png}
+        \caption{Area to consider and maximize in terms of $x_2$}
+        \label{fig:2.4}
+    \end{figure}
+    Which has the corresponding 2-depth decision tree: (left arrow = True)\\
+     \begin{equation*}
+        \begin{forest}
+            for tree={
+                grow=south,
+                rectangle, draw, minimum size=3ex, inner sep=8pt,
+                s sep=3cm
+                    }
+            [$x_2 < \frac{1}{2}$
+                [
+                    $x_2 < x$
+                    [1]
+                    [0]
+                ]
+                [
+                    $x_2 < x$
+                    [0]
+                    [1]
+                ]
+            ]
+        \end{forest}
+    \end{equation*}
+    And our objective is:
+    \begin{equation}
+        \begin{split}
+            \operatorname*{argmin}_x (R_1 + R_2 + R_3) &= \operatorname*{argmin}_x \left(\frac{-3}{2}(1-x)^2 + x^2 + \frac{1}{2} \right)\\
+        \end{split}
+    \end{equation}
+    Taking derivative with respect to $x$ and setting to 0:\\
+    \begin{equation}
+        \begin{split}
+            \frac{d(R_1 + R_2 + R_3)}{dx} &= -3(1-x) + x = 0\\
+            &= 4x - 3 = 0 \\ 
+            x_2 &= \frac{3}{4} \text{ will maximize the yellow area}
+        \end{split}
+    \end{equation}
+    
+    Finally, the complete decision tree should look as follows:
+    \begin{equation*}
+        \begin{forest}
+            for tree={
+                grow=south,
+                rectangle, draw, minimum size=3ex, inner sep=8pt,
+                s sep=3cm
+                    }
+            [$x_2 < \frac{1}{2}$
+                [
+                    $x_2 < \frac{3}{4}$
+                    [1]
+                    [0]
+                ]
+                [
+                    $x_2 < \frac{3}{4}$
+                    [0]
+                    [1]
+                ]
+            ]
+        \end{forest}
+    \end{equation*}
+\end{enumerate}
+
+\end{document}
